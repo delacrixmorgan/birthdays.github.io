@@ -1,0 +1,6 @@
+{
+  "name": "Birthdays vCard to ICS Converter",
+  "description": "A minimalist, high-end tool to convert vCard (VCF) files into holiday-ready iCalendar (ICS) events with age calculations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
