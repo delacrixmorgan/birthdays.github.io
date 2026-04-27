@@ -98,12 +98,14 @@ export default function App() {
     <div className="min-h-screen bg-[#F9FAEF] font-sans text-[#1A1C16]">
       {/* Navbar */}
       <nav className="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-[#F9FAEF]/80 backdrop-blur-md border-b border-[#E1E4D5]">
-        <div className="flex items-center gap-2">
+      <a href="#" className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-[#4C662B] rounded-lg flex items-center justify-center text-white">
             <Cake size={18} />
           </div>
           <span className="font-bold text-lg tracking-tight">Birthdays</span>
         </div>
+      </a>
         <div className="hidden md:flex gap-8 text-sm font-medium opacity-60">
           <a href="#how-it-works" className="hover:opacity-100">How it works</a>
           <a href="#features" className="hover:opacity-100">Features</a>
@@ -442,8 +444,8 @@ export default function App() {
         <div className="grid md:grid-cols-3 gap-12">
           {[
             { num: "01", title: "Export Contacts", desc: "Download your contacts as a VCF file from your iPhone, Android, or Google Contacts." },
-            { num: "02", title: "Drop & Detect", desc: "Drag your file here. We'll automatically identify every contact with a birthday field." },
-            { num: "03", title: "Import Home", desc: "Download the generated ICS file and open it—your calendar app will handle the rest." }
+            { num: "02", title: "Upload file", desc: "Drag your file here. We'll automatically identify every contact with a birthday field." },
+            { num: "03", title: "Import to Calendar", desc: "Download the generated ICS file and open it—your calendar app will handle the rest." }
           ].map((step, i) => (
             <div key={i} className="flex flex-col gap-6">
               <div className="text-6xl font-bold font-serif opacity-10 leading-none">{step.num}</div>
@@ -528,17 +530,17 @@ export default function App() {
               <span className="font-bold text-lg tracking-tight">Birthdays</span>
             </div>
             <p className="text-sm text-[#44483D] opacity-40 text-center md:text-left">
-              The high-end way to manage <br/> what matters most.
+              vCard to iCalendar Converter.
             </p>
           </div>
           <div className="flex gap-12 text-xs font-bold uppercase tracking-widest text-[#44483D] opacity-40">
-            <a href="#" className="hover:opacity-100">Privacy</a>
-            <a href="#" className="hover:opacity-100">Contact</a>
-            <a href="#" className="hover:opacity-100">GitHub</a>
+            <a href="https://github.com/delacrixmorgan/birthdays.github.io/blob/main/PRIVACY_POLICY.md" className="hover:opacity-100">Privacy</a>
+            <a href="mailto:delacrixmorgan@gmail.com" className="hover:opacity-100">Contact</a>
+            <a href="https://github.com/delacrixmorgan/birthdays.github.io" className="hover:opacity-100">GitHub</a>
           </div>
-          <div className="text-[10px] text-[#44483D] opacity-20 font-bold uppercase tracking-[0.2em]">
-            © 2026 BIRTHDAYS INC.
-          </div>
+          <a href="https://github.com/delacrixmorgan" className="text-[10px] text-[#44483D] opacity-20 font-bold uppercase tracking-[0.2em]">
+            © 2026 Don't Say Bojio.
+          </a>
         </div>
       </footer>
     </div>
