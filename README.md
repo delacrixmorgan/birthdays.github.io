@@ -1,4 +1,4 @@
-# Birthdays — vCard to iCalendar Converter
+# Birthdays — vCard to iCalendar Converter 🎂
 
 Birthdays is a minimalist, high-end web application designed to transform your exported contact files (VCF) into organized calendar events (ICS). Built with a focus on privacy and "Apple-esque" design elegance, it allows you to sync birthdays across all your devices with smart features like automated age calculation.
 
