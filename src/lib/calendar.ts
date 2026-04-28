@@ -29,7 +29,6 @@ export function generateICS(birthdays: Birthday[], type: CalendarType, targetYea
       start: [startYear, month, day],
       duration: { days: 1 },
       recurrenceRule: type === 'recurring' ? 'FREQ=YEARLY' : undefined,
-      description: `Automatically generated from your vCard contacts.`,
       categories: ['Birthday'],
       status: 'CONFIRMED',
       busyStatus: 'FREE',

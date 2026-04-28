@@ -86,11 +86,18 @@ export default function App() {
   };
 
   const downloadFile = () => {
+    // 1. Get the current date and format it as DDMMYYYY
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = now.getFullYear();
+    const dateStr = `${day}${month}${year}`;
+
     const blob = new Blob([icsContent], { type: 'text/calendar' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `birthdays-${calendarType}.ics`;
+    link.download = `birthdays_${calendarType}_${dateStr}.ics`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -151,7 +158,7 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      Hero Section
       <section className="relative pt-40 pb-20 px-8 flex flex-col items-center text-center overflow-hidden">
         {/* Decorative background blobs */}
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[var(--md-sys-color-primary-container)] rounded-full mix-blend-multiply filter blur-3xl opacity-20 pointer-events-none"></div>
@@ -188,17 +195,15 @@ export default function App() {
             </div>
           </div>
         </motion.div>
-
-        {/* Hero Image Mockup Area */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4, duration: 1 }}
           className="mt-20 w-full max-w-5xl relative z-10 px-4"
         >
-          <div className="rounded-[40px] overflow-hidden shadow-3xl border-8 border-[var(--md-sys-color-surface-container-lowest)]/50 backdrop-blur-sm">
+          <div className="rounded-[40px] overflow-hidden shadow-3xl /50 backdrop-blur-sm">
             <img 
-              src="https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&q=80&w=2000" 
+              src="https://images.unsplash.com/photo-1553135422-400ee5852b27?auto=format&fit=crop&q=80&w=2000" 
               alt="Professional celebration background" 
               className="w-full aspect-[16/9] object-cover contrast-110 saturate-[0.8]"
               referrerPolicy="no-referrer"
