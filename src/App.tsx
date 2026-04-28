@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Cake, 
@@ -14,7 +14,9 @@ import {
   Download, 
   RefreshCcw,
   Sparkles,
-  Info
+  Info,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { parseVCF } from './lib/vcard';
 import { Birthday, generateICS, CalendarType } from './lib/calendar';
@@ -30,6 +32,27 @@ export default function App() {
   const [isHovering, setIsHovering] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toolRef = useRef<HTMLDivElement>(null);
+
+  const [isDark, setIsDark] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('theme');
+      if (stored) return stored === 'dark';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }, [isDark]);
+
+  const toggleTheme = () => setIsDark(prev => !prev);
 
   const scrollToTool = () => {
     toolRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -83,24 +106,24 @@ export default function App() {
   const StepIndicator = ({ num, label, active, completed }: { num: number, label: string, active: boolean, completed: boolean }) => (
     <div className="flex items-center gap-2">
       <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-        completed ? 'bg-[#CDEDA3] text-[#354E16]' : 
-        active ? 'bg-[#4C662B] text-white' : 
-        'bg-white border border-[#C5C8BA] text-[#44483D]'
+        completed ? 'bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)]' : 
+        active ? 'bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)]' : 
+        'bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline-variant)] text-[var(--md-sys-color-on-surface-variant)]'
       }`}>
         {completed ? '✓' : num}
       </div>
       <span className={`text-sm ${active ? 'font-bold' : 'font-medium transition-opacity opacity-70'}`}>{label}</span>
-      {num < 3 && <div className="w-8 h-[1px] bg-[#C5C8BA] ml-2 hidden md:block" />}
+      {num < 3 && <div className="w-8 h-[1px] bg-[var(--md-sys-color-outline-variant)] ml-2 hidden md:block" />}
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#F9FAEF] font-sans text-[#1A1C16]">
+    <div className="min-h-screen bg-[var(--md-sys-color-background)] font-sans text-[var(--md-sys-color-on-background)] transition-colors duration-300">
       {/* Navbar */}
-      <nav className="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-[#F9FAEF]/80 backdrop-blur-md border-b border-[#E1E4D5]">
+      <nav className="fixed top-0 w-full z-50 px-8 py-6 flex justify-between items-center bg-[var(--md-sys-color-background)]/80 backdrop-blur-md border-b border-[var(--md-sys-color-surface-variant)]">
       <a href="#" className="flex items-center gap-2">
           <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-[#4C662B] rounded-lg flex items-center justify-center text-white">
+          <div className="w-8 h-8 bg-[var(--md-sys-color-primary)] rounded-lg flex items-center justify-center text-[var(--md-sys-color-on-primary)]">
             <Cake size={18} />
           </div>
           <span className="font-bold text-lg tracking-tight">Birthdays</span>
@@ -111,19 +134,28 @@ export default function App() {
           <a href="#features" className="hover:opacity-100">Features</a>
           <a href="#faq" className="hover:opacity-100">FAQ</a>
         </div>
-        <button 
-          onClick={scrollToTool}
-          className="bg-[#4C662B] text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-[#4C662B]/20 hover:scale-105 active:scale-95 transition-all"
-        >
-          Try Now
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-[var(--md-sys-color-surface-container)] border border-[var(--md-sys-color-surface-variant)] hover:bg-[var(--md-sys-color-surface-container-high)] transition-all"
+            aria-label="Toggle theme"
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+          <button 
+            onClick={scrollToTool}
+            className="bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] px-5 py-2 rounded-full text-sm font-bold shadow-lg shadow-[var(--md-sys-color-primary)]/20 hover:scale-105 active:scale-95 transition-all"
+          >
+            Try Now
+          </button>
+        </div>
       </nav>
 
       {/* Hero Section */}
       <section className="relative pt-40 pb-20 px-8 flex flex-col items-center text-center overflow-hidden">
         {/* Decorative background blobs */}
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#CDEDA3] rounded-full mix-blend-multiply filter blur-3xl opacity-20 pointer-events-none"></div>
-        <div className="absolute top-20 -right-20 w-80 h-80 bg-[#4C662B] rounded-full mix-blend-multiply filter blur-3xl opacity-10 pointer-events-none"></div>
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[var(--md-sys-color-primary-container)] rounded-full mix-blend-multiply filter blur-3xl opacity-20 pointer-events-none"></div>
+        <div className="absolute top-20 -right-20 w-80 h-80 bg-[var(--md-sys-color-primary)] rounded-full mix-blend-multiply filter blur-3xl opacity-10 pointer-events-none"></div>
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -131,23 +163,23 @@ export default function App() {
           transition={{ duration: 0.8 }}
           className="max-w-3xl z-10"
         >
-          <div className="inline-block px-4 py-1.5 rounded-full bg-[#CDEDA3] text-[#354E16] text-[10px] font-bold uppercase tracking-widest mb-6 border border-[#CDEDA3]">
+          <div className="inline-block px-4 py-1.5 rounded-full bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] text-[10px] font-bold uppercase tracking-widest mb-6 border border-[var(--md-sys-color-primary-container)]">
             vCard to iCalendar Converter
           </div>
           <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-[0.9] mb-8">
-            Never miss a <span className="text-[#4C662B]">meaningful</span> moment again.
+            Never miss a <span className="text-[var(--md-sys-color-primary)]">meaningful</span> moment again.
           </h1>
-          <p className="text-xl text-[#44483D] opacity-60 mb-12 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xl text-[var(--md-sys-color-on-surface-variant)] opacity-60 mb-12 max-w-2xl mx-auto leading-relaxed">
             Beautifully simple conversion of your contact birthdays into smart, recurring calendar events. Automated age calculation included.
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
             <button 
               onClick={scrollToTool}
-              className="px-8 py-4 bg-[#4C662B] text-white rounded-[20px] font-bold text-lg shadow-2xl shadow-[#4C662B]/20 hover:scale-105 transition-all"
+              className="px-8 py-4 bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] rounded-[20px] font-bold text-lg shadow-2xl shadow-[var(--md-sys-color-primary)]/20 hover:scale-105 transition-all"
             >
               Start Converting
             </button>
-            <div className="flex items-center gap-2 text-sm text-[#44483D] opacity-40">
+            <div className="flex items-center gap-2 text-sm text-[var(--md-sys-color-on-surface-variant)] opacity-40">
               <CheckCircle2 size={16} />
               No data uploaded
               <span className="mx-1">•</span>
@@ -164,7 +196,7 @@ export default function App() {
           transition={{ delay: 0.4, duration: 1 }}
           className="mt-20 w-full max-w-5xl relative z-10 px-4"
         >
-          <div className="rounded-[40px] overflow-hidden shadow-3xl border-8 border-white/50 backdrop-blur-sm">
+          <div className="rounded-[40px] overflow-hidden shadow-3xl border-8 border-[var(--md-sys-color-surface-container-lowest)]/50 backdrop-blur-sm">
             <img 
               src="https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&q=80&w=2000" 
               alt="Professional celebration background" 
@@ -172,20 +204,20 @@ export default function App() {
               referrerPolicy="no-referrer"
             />
             {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#F9FAEF] via-transparent opacity-60"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--md-sys-color-background)] via-transparent opacity-60"></div>
           </div>
         </motion.div>
       </section>
 
       {/* Converter Section */}
-      <section ref={toolRef} id="converter" className="py-24 px-8 flex justify-center bg-[#F5F5E9]/50">
-        <div className="w-full max-w-[860px] min-h-[640px] bg-[#F5F5E9] rounded-[40px] shadow-2xl border border-[#E1E4D5] flex flex-col overflow-hidden relative">
+      <section ref={toolRef} id="converter" className="py-24 px-8 flex justify-center bg-[var(--md-sys-color-surface-container)]/50">
+        <div className="w-full max-w-[860px] min-h-[640px] bg-[var(--md-sys-color-surface-container)] rounded-[40px] shadow-2xl border border-[var(--md-sys-color-surface-variant)] flex flex-col overflow-hidden relative">
           
           {/* Header / Stepper */}
           <header className="px-12 pt-10 pb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight">Birthdays</h2>
-              <p className="text-sm text-[#44483D] opacity-70">Convert VCF to iCalendar</p>
+              <p className="text-sm text-[var(--md-sys-color-on-surface-variant)] opacity-70">Convert VCF to iCalendar</p>
             </div>
             <nav className="flex items-center gap-4">
               <StepIndicator num={1} label="Upload" active={step === 'UPLOAD'} completed={['OVERVIEW', 'DONE'].includes(step)} />
@@ -215,17 +247,17 @@ export default function App() {
                     }}
                     className={`
                       border-2 border-dashed rounded-[32px] p-24 flex flex-col items-center justify-center transition-all duration-300
-                      ${isHovering ? 'border-[#4C662B] bg-[#CDEDA3]/30' : 'border-[#C5C8BA] bg-white/20'}
+                      ${isHovering ? 'border-[var(--md-sys-color-primary)] bg-[var(--md-sys-color-primary-container)]/30' : 'border-[var(--md-sys-color-outline-variant)] bg-[var(--md-sys-color-surface-container-lowest)]/20'}
                     `}
                   >
                     <motion.div 
                       whileHover={{ rotate: 10 }}
-                      className="bg-white p-6 rounded-3xl shadow-sm mb-6"
+                      className="bg-[var(--md-sys-color-surface-container-lowest)] p-6 rounded-3xl shadow-sm mb-6"
                     >
-                      <FileUp size={48} className="text-[#4C662B]" />
+                      <FileUp size={48} className="text-[var(--md-sys-color-primary)]" />
                     </motion.div>
                     <h2 className="text-2xl font-semibold mb-2">Drop VCF File</h2>
-                    <p className="text-sm text-[#44483D] opacity-60 mb-8 max-w-xs text-center">
+                    <p className="text-sm text-[var(--md-sys-color-on-surface-variant)] opacity-60 mb-8 max-w-xs text-center">
                       Drag and drop your contact export file here, or click to browse.
                     </p>
                     
@@ -243,14 +275,14 @@ export default function App() {
                     <button 
                       id="select-vcf-btn"
                       onClick={() => fileInputRef.current?.click()}
-                      className="bg-[#4C662B] text-white px-10 py-4 rounded-[20px] font-bold shadow-lg shadow-[#4C662B]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                      className="bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] px-10 py-4 rounded-[20px] font-bold shadow-lg shadow-[var(--md-sys-color-primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                       Select VCF File
                     </button>
                   </div>
 
-                  <div className="mt-8 flex gap-4 text-xs text-[#44483D] leading-relaxed max-w-lg mx-auto bg-white/30 p-5 rounded-3xl border border-[#E1E4D5]">
-                    <Info size={20} className="shrink-0 text-[#4C662B] opacity-60" />
+                  <div className="mt-8 flex gap-4 text-xs text-[var(--md-sys-color-on-surface-variant)] leading-relaxed max-w-lg mx-auto bg-[var(--md-sys-color-surface-container-lowest)]/30 p-5 rounded-3xl border border-[var(--md-sys-color-surface-variant)]">
+                    <Info size={20} className="shrink-0 text-[var(--md-sys-color-primary)] opacity-60" />
                     <p className="opacity-70">
                       <span className="font-bold block mb-1 text-[10px] uppercase tracking-wider">Privacy First</span>
                       Your contact data is processed entirely on your device using local JavaScript. We never upload your VCF file to any server.
@@ -272,28 +304,28 @@ export default function App() {
                     <motion.div 
                       initial={{ x: -20, opacity: 0 }}
                       animate={{ x: 0, opacity: 1 }}
-                      className="p-6 bg-[#CDEDA3] rounded-[24px] flex items-center gap-4 border border-[#CDEDA3]"
+                      className="p-6 bg-[var(--md-sys-color-primary-container)] rounded-[24px] flex items-center gap-4 border border-[var(--md-sys-color-primary-container)]"
                     >
                       <div className="text-4xl">🎉</div>
                       <div>
-                        <div className="text-xl font-bold text-[#162000]">{birthdays.length} Birthdays Found</div>
-                        <div className="text-sm text-[#354E16] opacity-80">Ready to generate your calendar</div>
+                        <div className="text-xl font-bold text-[var(--md-sys-color-on-primary-fixed)]">{birthdays.length} Birthdays Found</div>
+                        <div className="text-sm text-[var(--md-sys-color-on-primary-container)] opacity-80">Ready to generate your calendar</div>
                       </div>
                     </motion.div>
 
-                    <div className="bg-white/50 border border-[#E1E4D5] rounded-[24px] p-6 space-y-6">
+                    <div className="bg-[var(--md-sys-color-surface-container-lowest)]/50 border border-[var(--md-sys-color-surface-variant)] rounded-[24px] p-6 space-y-6">
                       <div>
-                        <label className="text-[11px] font-bold uppercase tracking-wider text-[#44483D] block mb-3 opacity-60">Format Options</label>
-                        <div className="flex p-1 bg-[#E1E4D5]/40 rounded-xl">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] block mb-3 opacity-60">Format Options</label>
+                        <div className="flex p-1 bg-[var(--md-sys-color-surface-variant)]/40 rounded-xl">
                           <button 
                             onClick={() => setCalendarType('with_age')}
-                            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${calendarType === 'with_age' ? 'bg-white shadow-sm' : 'text-[#44483D] hover:opacity-70'}`}
+                            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${calendarType === 'with_age' ? 'bg-[var(--md-sys-color-surface-container-lowest)] shadow-sm' : 'text-[var(--md-sys-color-on-surface-variant)] hover:opacity-70'}`}
                           >
                             With Age
                           </button>
                           <button 
                             onClick={() => setCalendarType('recurring')}
-                            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${calendarType === 'recurring' ? 'bg-white shadow-sm' : 'text-[#44483D] hover:opacity-70'}`}
+                            className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all ${calendarType === 'recurring' ? 'bg-[var(--md-sys-color-surface-container-lowest)] shadow-sm' : 'text-[var(--md-sys-color-on-surface-variant)] hover:opacity-70'}`}
                           >
                             Recurring
                           </button>
@@ -307,12 +339,12 @@ export default function App() {
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                           >
-                            <label className="text-[11px] font-bold uppercase tracking-wider text-[#44483D] block mb-3 opacity-60">Target Year</label>
+                            <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] block mb-3 opacity-60">Target Year</label>
                             <div className="relative">
                               <select 
                                 value={targetYear}
                                 onChange={(e) => setTargetYear(parseInt(e.target.value))}
-                                className="w-full appearance-none bg-white border border-[#C5C8BA] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#4C662B]/20"
+                                className="w-full appearance-none bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-outline-variant)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)]/20"
                               >
                                 {Array.from({ length: 11 }, (_, i) => 2026 + i).map(year => (
                                   <option key={year} value={year}>{year}</option>
@@ -327,7 +359,7 @@ export default function App() {
                     <button 
                       id="generate-calendar-btn"
                       onClick={handleGenerate}
-                      className="w-full bg-[#4C662B] text-white font-bold py-5 rounded-[24px] shadow-xl shadow-[#4C662B]/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                      className="w-full bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] font-bold py-5 rounded-[24px] shadow-xl shadow-[var(--md-sys-color-primary)]/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                     >
                       <Calendar size={20} />
                       Generate Calendar
@@ -335,7 +367,7 @@ export default function App() {
                     
                     <button 
                       onClick={() => setStep('UPLOAD')}
-                      className="text-xs font-bold text-[#44483D] uppercase tracking-widest opacity-40 hover:opacity-80 transition-opacity flex items-center justify-center gap-1"
+                      className="text-xs font-bold text-[var(--md-sys-color-on-surface-variant)] uppercase tracking-widest opacity-40 hover:opacity-80 transition-opacity flex items-center justify-center gap-1"
                     >
                       <ArrowLeft size={12} />
                       Change File
@@ -344,9 +376,9 @@ export default function App() {
 
                   {/* Right: Preview List */}
                   <section className="col-span-12 md:col-span-7 flex flex-col h-full">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-[#44483D] mb-3 opacity-60">Preview (Top 5)</label>
-                    <div className="bg-white/40 border border-[#E1E4D5] rounded-[32px] overflow-hidden flex flex-col flex-1 shadow-inner">
-                      <div className="divide-y divide-[#E1E4D5] flex-1 overflow-y-auto px-6 custom-scrollbar">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[var(--md-sys-color-on-surface-variant)] mb-3 opacity-60">Preview (Top 5)</label>
+                    <div className="bg-[var(--md-sys-color-surface-container-lowest)]/40 border border-[var(--md-sys-color-surface-variant)] rounded-[32px] overflow-hidden flex flex-col flex-1 shadow-inner">
+                      <div className="divide-y divide-[var(--md-sys-color-surface-variant)] flex-1 overflow-y-auto px-6 custom-scrollbar">
                         {birthdays.slice(0, 5).map((b, i) => {
                           const age = b.originalYear ? (targetYear - b.originalYear) : 0;
                           const ageStr = (calendarType === 'with_age' && age > 0) ? `${age}${getOrdinal(age)} Birthday` : `Birthday`;
@@ -361,25 +393,25 @@ export default function App() {
                               className="py-5 flex items-center justify-between group"
                             >
                               <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-[#DCE7C8] flex items-center justify-center font-bold text-[#4C662B] shadow-sm">
+                                <div className="w-12 h-12 rounded-full bg-[var(--md-sys-color-secondary-container)] flex items-center justify-center font-bold text-[var(--md-sys-color-primary)] shadow-sm">
                                   {initials}
                                 </div>
                                 <div>
-                                  <div className="text-sm font-bold text-[#1A1C16]">{b.name}</div>
-                                  <div className="text-[11px] text-[#44483D] opacity-60">
+                                  <div className="text-sm font-bold text-[var(--md-sys-color-on-surface)]">{b.name}</div>
+                                  <div className="text-[11px] text-[var(--md-sys-color-on-surface-variant)] opacity-60">
                                     Born {b.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: b.originalYear ? 'numeric' : undefined })}
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-[10px] font-bold uppercase tracking-tight px-3 py-1.5 bg-[#F5F5E9] rounded-full border border-[#E1E4D5] text-[#4C662B] group-hover:bg-[#CDEDA3] transition-colors">
+                              <div className="text-[10px] font-bold uppercase tracking-tight px-3 py-1.5 bg-[var(--md-sys-color-surface-container)] rounded-full border border-[var(--md-sys-color-surface-variant)] text-[var(--md-sys-color-primary)] group-hover:bg-[var(--md-sys-color-primary-container)] transition-colors">
                                 {ageStr}
                               </div>
                             </motion.div>
                           );
                         })}
                       </div>
-                      <div className="p-4 bg-[#F5F5E9]/80 border-t border-[#E1E4D5] text-center">
-                        <p className="text-[10px] text-[#44483D] font-bold opacity-40 uppercase tracking-widest">
+                      <div className="p-4 bg-[var(--md-sys-color-surface-container)]/80 border-t border-[var(--md-sys-color-surface-variant)] text-center">
+                        <p className="text-[10px] text-[var(--md-sys-color-on-surface-variant)] font-bold opacity-40 uppercase tracking-widest">
                           {birthdays.length > 5 ? `+ ${birthdays.length - 5} additional birthdays found` : 'All detected birthdays listed'}
                         </p>
                       </div>
@@ -399,13 +431,13 @@ export default function App() {
                     initial={{ scale: 0, rotate: -45 }}
                     animate={{ scale: 1, rotate: 0 }}
                     transition={{ type: 'spring', damping: 12, stiffness: 100 }}
-                    className="w-32 h-32 bg-[#CDEDA3] text-[#4C662B] rounded-[48px] flex items-center justify-center mb-8 shadow-xl"
+                    className="w-32 h-32 bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-primary)] rounded-[48px] flex items-center justify-center mb-8 shadow-xl"
                   >
                     <CheckCircle2 size={64} strokeWidth={3} />
                   </motion.div>
                   
                   <h2 className="text-4xl font-bold mb-4 tracking-tight">Calendar is Ready</h2>
-                  <p className="text-[#44483D] opacity-60 mb-10 max-w-sm mx-auto">
+                  <p className="text-[var(--md-sys-color-on-surface-variant)] opacity-60 mb-10 max-w-sm mx-auto">
                     Your .ics file has been successfully generated. You can now import it into Apple Calendar, Google, or Outlook.
                   </p>
 
@@ -413,7 +445,7 @@ export default function App() {
                     <button 
                       id="download-ics-btn"
                       onClick={downloadFile}
-                      className="w-full bg-[#4C662B] text-white py-5 rounded-[24px] font-bold text-lg flex items-center justify-center gap-3 shadow-2xl shadow-[#4C662B]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                      className="w-full bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)] py-5 rounded-[24px] font-bold text-lg flex items-center justify-center gap-3 shadow-2xl shadow-[var(--md-sys-color-primary)]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                       <Download size={24} />
                       Download .ics File
@@ -422,7 +454,7 @@ export default function App() {
                     <button 
                       id="convert-another-btn"
                       onClick={reset}
-                      className="w-full bg-transparent text-[#44483D]/60 py-4 rounded-[24px] font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-[#E1E4D5]/30 transition-colors"
+                      className="w-full bg-transparent text-[var(--md-sys-color-on-surface-variant)]/60 py-4 rounded-[24px] font-bold uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-[var(--md-sys-color-surface-variant)]/30 transition-colors"
                     >
                       <RefreshCcw size={14} />
                       Process Another File
@@ -438,8 +470,8 @@ export default function App() {
       {/* How it Works Section */}
       <section id="how-it-works" className="py-24 px-8 max-w-7xl mx-auto">
         <div className="text-center mb-20">
-          <h2 className="text-4xl font-bold tracking-tight mb-4 text-[#1A1C16]">Three Simple Steps</h2>
-          <p className="text-[#44483D] opacity-60 max-w-xl mx-auto">From contact list to calendar events in under 30 seconds.</p>
+          <h2 className="text-4xl font-bold tracking-tight mb-4 text-[var(--md-sys-color-on-background)]">Three Simple Steps</h2>
+          <p className="text-[var(--md-sys-color-on-surface-variant)] opacity-60 max-w-xl mx-auto">From contact list to calendar events in under 30 seconds.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-12">
           {[
@@ -450,18 +482,18 @@ export default function App() {
             <div key={i} className="flex flex-col gap-6">
               <div className="text-6xl font-bold font-serif opacity-10 leading-none">{step.num}</div>
               <h3 className="text-xl font-bold">{step.title}</h3>
-              <p className="text-[#44483D] opacity-60 leading-relaxed">{step.desc}</p>
+              <p className="text-[var(--md-sys-color-on-surface-variant)] opacity-60 leading-relaxed">{step.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="py-24 px-8 bg-[#CDEDA3]/10">
+      <section id="features" className="py-24 px-8 bg-[var(--md-sys-color-primary-container)]/10">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="text-5xl font-bold tracking-tight mb-8 leading-[1.1]">Powerful features for a <br/><span className="text-[#4C662B]">clutter-free</span> brain.</h2>
+              <h2 className="text-5xl font-bold tracking-tight mb-8 leading-[1.1]">Powerful features for a <br/><span className="text-[var(--md-sys-color-primary)]">clutter-free</span> brain.</h2>
               <div className="space-y-8">
                 {[
                   { icon: <Sparkles />, title: "Smart Age Calculation", desc: "Optionally include the target age (e.g., 'John's 30th Birthday') directly in the event title." },
@@ -469,25 +501,25 @@ export default function App() {
                   { icon: <Info />, title: "Local Processing", desc: "Your contact details are sensitive. That's why everything happens in your browser." }
                 ].map((feat, i) => (
                   <div key={i} className="flex gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-white border border-[#E1E4D5] flex items-center justify-center text-[#4C662B] shadow-sm">
+                    <div className="w-12 h-12 rounded-2xl bg-[var(--md-sys-color-surface-container-lowest)] border border-[var(--md-sys-color-surface-variant)] flex items-center justify-center text-[var(--md-sys-color-primary)] shadow-sm">
                       {feat.icon}
                     </div>
                     <div>
                       <h4 className="font-bold mb-1">{feat.title}</h4>
-                      <p className="text-sm text-[#44483D] opacity-60 leading-relaxed">{feat.desc}</p>
+                      <p className="text-sm text-[var(--md-sys-color-on-surface-variant)] opacity-60 leading-relaxed">{feat.desc}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="bg-white rounded-[48px] p-12 shadow-2xl border border-[#E1E4D5]">
-              <div className="aspect-square bg-[#F5F5E9] rounded-[32px] flex items-center justify-center relative overflow-hidden">
-                <Cake size={120} className="text-[#4C662B] opacity-10 absolute -right-10 -bottom-10" />
+            <div className="bg-[var(--md-sys-color-surface-container-lowest)] rounded-[48px] p-12 shadow-2xl border border-[var(--md-sys-color-surface-variant)]">
+              <div className="aspect-square bg-[var(--md-sys-color-surface-container)] rounded-[32px] flex items-center justify-center relative overflow-hidden">
+                <Cake size={120} className="text-[var(--md-sys-color-primary)] opacity-10 absolute -right-10 -bottom-10" />
                 <div className="text-center z-10 px-8">
-                  <div className="text-5xl font-bold font-serif mb-4 text-[#4C662B]">100%</div>
+                  <div className="text-5xl font-bold font-serif mb-4 text-[var(--md-sys-color-primary)]">100%</div>
                   <div className="text-sm font-bold uppercase tracking-widest opacity-40">Private & Local</div>
-                  <div className="h-[1px] w-12 bg-[#4C662B] mx-auto my-6 opacity-20"></div>
-                  <p className="text-sm text-[#44483D] leading-relaxed">We utilize advanced client-side processing to ensure that not a single byte of your contact data ever touches our servers.</p>
+                  <div className="h-[1px] w-12 bg-[var(--md-sys-color-primary)] mx-auto my-6 opacity-20"></div>
+                  <p className="text-sm text-[var(--md-sys-color-on-surface-variant)] leading-relaxed">We utilize advanced client-side processing to ensure that not a single byte of your contact data ever touches our servers.</p>
                 </div>
               </div>
             </div>
@@ -504,14 +536,14 @@ export default function App() {
             { q: "Does this work with Google Calendar?", a: "Yes! Once you download the .ics file, you can import it into Google Calendar via Settings > Import & Export." },
             { q: "Is there a limit on contact numbers?", a: "No. Our browser-based parser can handle thousands of contacts in seconds." }
           ].map((item, i) => (
-            <details key={i} className="group bg-white rounded-3xl border border-[#E1E4D5] overflow-hidden">
-              <summary className="list-none p-8 flex justify-between items-center cursor-pointer font-bold hover:bg-[#F5F5E9]/50 transition-colors">
+            <details key={i} className="group bg-[var(--md-sys-color-surface-container-lowest)] rounded-3xl border border-[var(--md-sys-color-surface-variant)] overflow-hidden">
+              <summary className="list-none p-8 flex justify-between items-center cursor-pointer font-bold hover:bg-[var(--md-sys-color-surface-container)]/50 transition-colors">
                 {item.q}
-                <div className="w-8 h-8 rounded-full bg-[#F5F5E9] flex items-center justify-center group-open:rotate-180 transition-transform">
+                <div className="w-8 h-8 rounded-full bg-[var(--md-sys-color-surface-container)] flex items-center justify-center group-open:rotate-180 transition-transform">
                   <ArrowLeft size={16} className="-rotate-90" />
                 </div>
               </summary>
-              <div className="px-8 pb-8 text-[#44483D] opacity-70 leading-relaxed text-sm">
+              <div className="px-8 pb-8 text-[var(--md-sys-color-on-surface-variant)] opacity-70 leading-relaxed text-sm">
                 {item.a}
               </div>
             </details>
@@ -520,25 +552,25 @@ export default function App() {
       </section>
 
       {/* Footer */}
-      <footer className="py-20 px-8 border-t border-[#E1E4D5]">
+      <footer className="py-20 px-8 border-t border-[var(--md-sys-color-surface-variant)]">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
           <div className="flex flex-col items-center md:items-start gap-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#4C662B] rounded-lg flex items-center justify-center text-white">
+              <div className="w-8 h-8 bg-[var(--md-sys-color-primary)] rounded-lg flex items-center justify-center text-[var(--md-sys-color-on-primary)]">
                 <Cake size={18} />
               </div>
               <span className="font-bold text-lg tracking-tight">Birthdays</span>
             </div>
-            <p className="text-sm text-[#44483D] opacity-40 text-center md:text-left">
+            <p className="text-sm text-[var(--md-sys-color-on-surface-variant)] opacity-40 text-center md:text-left">
               vCard to iCalendar Converter.
             </p>
           </div>
-          <div className="flex gap-12 text-xs font-bold uppercase tracking-widest text-[#44483D] opacity-40">
+          <div className="flex gap-12 text-xs font-bold uppercase tracking-widest text-[var(--md-sys-color-on-surface-variant)] opacity-40">
             <a href="https://github.com/delacrixmorgan/birthdays.github.io/blob/main/PRIVACY_POLICY.md" className="hover:opacity-100">Privacy</a>
             <a href="mailto:delacrixmorgan@gmail.com" className="hover:opacity-100">Contact</a>
             <a href="https://github.com/delacrixmorgan/birthdays.github.io" className="hover:opacity-100">GitHub</a>
           </div>
-          <a href="https://github.com/delacrixmorgan" className="text-[10px] text-[#44483D] opacity-20 font-bold uppercase tracking-[0.2em]">
+          <a href="https://github.com/delacrixmorgan" className="text-[10px] text-[var(--md-sys-color-on-surface-variant)] opacity-20 font-bold uppercase tracking-[0.2em]">
             © 2026 Don't Say Bojio.
           </a>
         </div>
