@@ -204,7 +204,7 @@ export default function App() {
           <div className="rounded-[40px] overflow-hidden shadow-3xl /50 backdrop-blur-sm">
             <img 
               src="https://images.unsplash.com/photo-1553135422-400ee5852b27?auto=format&fit=crop&q=80&w=2000" 
-              alt="Professional celebration background" 
+              alt="Birthday celebration — convert vCard contacts to iCalendar birthday events" 
               className="w-full aspect-[16/9] object-cover contrast-110 saturate-[0.8]"
               referrerPolicy="no-referrer"
             />

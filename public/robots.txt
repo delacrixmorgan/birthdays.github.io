@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://delacrixmorgan.github.io/birthdays.github.io/sitemap.xml
